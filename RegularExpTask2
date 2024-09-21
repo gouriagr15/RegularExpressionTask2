@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS Function Finder in JS/HTML</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+
+    button {
+      padding: 10px 15px;
+      font-size: 16px;
+    }
+
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-family: monospace;
+    }
+
+    pre {
+      background-color: #f4f4f4;
+      padding: 10px;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>JavaScript Function Finder</h1>
+
+  <input type="file" id="fileInput" accept=".js, .html" />
+
+  <button onclick="processFile()">Find Functions</button>
+  
+  <div class="result">
+    <h3>Detected Functions:</h3>
+    <pre id="functionResult"></pre>
+  </div>
+
+  <script>
+    const functionPattern = /function\s+\w+\s*\([^)]*\)\s*{[^}]*}|const\s+\w+\s*=\s*function\s*\([^)]*\)\s*{[^}]*}|const\s+\w+\s*=\s*\([^)]*\)\s*=>\s*{[^}]*}/gs;
+
+    function processFile() {
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+
+      if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(event) {
+          let content = event.target.result;
+
+          if (file.name.endsWith('.html')) {
+            content = extractScriptsFromHTML(content);
+          }
+
+          findJSFunctions(content);
+        };
+        
+        reader.readAsText(file);
+      } else {
+        alert('Please upload a JavaScript (.js) or HTML (.html) file.');
+      }
+    }
+
+    function extractScriptsFromHTML(content) {
+      const scriptTagPattern = /<script\b[^>]*>([\s\S]*?)<\/script>/gi;
+      let scriptsContent = '';
+      let match;
+
+      while ((match = scriptTagPattern.exec(content)) !== null) {
+        scriptsContent += match[1] + '\n';
+      }
+
+      return scriptsContent;
+    }
+
+    function findJSFunctions(content) {
+      const functions = content.match(functionPattern);
+      const resultArea = document.getElementById('functionResult');
+
+      if (functions) {
+        resultArea.textContent = functions.join('\n\n');
+      } else {
+        resultArea.textContent = 'No functions found.';
+      }
+    }
+  </script>
+</body>
+</html>
